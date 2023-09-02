@@ -5,9 +5,20 @@ description = "processes and organises photos from external devices like cameras
 authors = ["Chris Denney <chris.j.denney@gmail.com>"]
 readme = "README.md"
 
+[tool.poetry.scripts]
+camera-transfer = "camera_transfer.console:main"
+
 [tool.poetry.dependencies]
 python = "^3.10"
+python-dotenv = "^1.0.0"
+click = "^8.1.7"
+pydantic-settings = "^2.0.3"
+exif = "^1.6.0"
 
+
+[tool.poetry.group.dev.dependencies]
+notebook = "^7.0.2"
+mypy = "^1.5.1"
 
 [build-system]
 requires = ["poetry-core"]
