@@ -4,13 +4,19 @@ from pydantic import DirectoryPath, Field
 from pydantic_settings import BaseSettings, SettingsConfigDict
 
 
-class Config(BaseSettings):
+class Settings(BaseSettings, validate_assignment=True):
     DRY_RUN: bool = Field(validation_alias='CT_DRY_RUN')
-    camera_folder: DirectoryPath = Field(validation_alias='CT_CAMERA_FOLDER')
-    main_photos_folder: DirectoryPath = Field(validation_alias='CT_MAIN_PHOTOS_FOLDER')
-    sqlite_database: Path = Field(validation_alias='CT_SQLITE_DATABASE')
-    model_config = SettingsConfigDict(env_file='.env', extra='forbid')
-    # model_config = SettingsConfigDict(env_file='.env', extra='forbid', env_prefix='CT_')
+    CAMERA_FOLDER: DirectoryPath = Field(validation_alias='CT_CAMERA_FOLDER')
+    MAIN_PHOTOS_FOLDER: DirectoryPath = Field(validation_alias='CT_MAIN_PHOTOS_FOLDER')
+    SQLITE_DATABASE: Path = Field(validation_alias='CT_SQLITE_DATABASE')
+    # DRY_RUN: bool
+    # CAMERA_FOLDER: DirectoryPath
+    # MAIN_PHOTOS_FOLDER: DirectoryPath
+    # SQLITE_DATABASE: Path
+    # model_config = SettingsConfigDict(env_file='.env', extra='forbid')
 
-print("parsing settings...")
-config = Config()
+    # def my_get_config(self, *args, **kwargs):
+    #     print("parsing settings...")
+    #     return Config(args, kwargs)
+
+config = Settings()

@@ -8,30 +8,15 @@ from pathlib import Path
 import exif  # type: ignore
 
 from camera_transfer.hash_store import HashStore
-from camera_transfer.dotenv_config import config
-import shutil
+from camera_transfer.dotenv_config import Settings
 
 logger = logging.getLogger(__name__)
-
-
-def skip_on_dry_run(func):
-    def wrapper(*args, **kwargs):
-        if config.DRY_RUN:
-            (self, *other_args) = args
-            logger.debug(
-                f"Dry-run mode enabled for {func.__name__}, {other_args} No changes will be made."
-            )
-            return  # Exit without executing the decorated function
-        return func(*args, **kwargs)
-
-    return wrapper
 
 
 class CameraImage:
     def __init__(self, image_path: Path):
         self.image_path = image_path
 
-    # cache the result of the next method
     @cache
     def get_image_content(self):
         return self.image_path.read_bytes()
@@ -139,19 +124,25 @@ class CameraImage:
         )
 
 
+def skip_on_dry_run(func):
+    def decorator(self, *args, **kwargs):
+        if self.settings.DRY_RUN:
+            logger.debug(
+                f"Dry-run mode enabled for {func.__name__}, {args} No changes will be made."
+            )
+            return  # Exit without executing the decorated function
+        return func(*args, **kwargs)
+
+    return decorator
+
+
 class CameraTransfer:
-    def __init__(
-        self,
-        camera_folder: Path,
-        main_photos_folder: Path,
-        sqlite_database: Path,
-        dry_run: bool,
-    ):
-        self.camera_folder = camera_folder
-        self.main_photos_folder = main_photos_folder
-        self.sqlite_database = sqlite_database
-        self.image_hashes = HashStore(sqlite_database)
-        self.dry_run = dry_run
+    def __init__(self, settings: Settings | None = None):
+        self.settings = settings or Settings()
+        self.camera_folder = self.settings.CAMERA_FOLDER
+        self.main_photos_folder = self.settings.MAIN_PHOTOS_FOLDER
+        self.sqlite_database = self.settings.SQLITE_DATABASE
+        self.image_hashes = HashStore(self.sqlite_database)
 
     def get_photo_loading_folder(self):
         today = date.today()
@@ -177,7 +168,7 @@ class CameraTransfer:
         destination.write_bytes(source.read_bytes())
 
     def transfer_image(self, image: CameraImage):
-        logger.debug(f"Dry run: {self.dry_run}")
+        logger.debug(f"Dry run: {self.settings.DRY_RUN}")
         logger.debug(image.all_attributes)
         logger.debug(image.generate_new_file_name())
         logger.debug(
@@ -190,6 +181,8 @@ class CameraTransfer:
     def transfer_photos(self):
         for image in self.all_camera_images():
             self.transfer_image(image)
+
+        return True
 
     def transfer_videos(self):
         pass
