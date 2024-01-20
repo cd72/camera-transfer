@@ -1,0 +1,79 @@
+import hashlib
+import logging
+import re
+from datetime import date
+from pathlib import Path
+
+import exif  # type: ignore
+
+from camera_transfer.hash_store import HashStore
+from camera_transfer.dotenv_config import Settings
+
+logger = logging.getLogger(__name__)
+
+
+
+
+
+def skip_on_dry_run(func):
+    def decorator(self, *args, **kwargs):
+        if self.settings.DRY_RUN:
+            logger.debug(
+                f"Dry-run mode enabled for {func.__name__}, {args} No changes will be made."
+            )
+            return  # Exit without executing the decorated function
+        return func(*args, **kwargs)
+
+    return decorator
+
+
+class CameraTransfer:
+    def __init__(self, settings: Settings | None = None):
+        self.settings = settings or Settings()
+        self.camera_folder = self.settings.CAMERA_FOLDER
+        self.main_photos_folder = self.settings.MAIN_PHOTOS_FOLDER
+        self.sqlite_database = self.settings.SQLITE_DATABASE
+        self.image_hashes = HashStore(self.sqlite_database)
+
+    def get_photo_loading_folder(self):
+        today = date.today()
+        day = today.strftime("%d")
+        month = today.strftime("%m") + " - " + today.strftime("%B")
+        year = today.strftime("%Y")
+
+        today_folder = self.main_photos_folder / year / month / day
+        today_folder.mkdir(parents=True, exist_ok=True)
+        return today_folder
+
+    def all_camera_images(self):
+        logger.debug(f"Listing all photos in {self.camera_folder}")
+        image_file_types = [".jpg", ".jpeg", ".JPG", ".JPEG"]
+
+        for path in self.camera_folder.rglob(r"**/*"):
+            if path.suffix in image_file_types:
+                yield CameraImage(path)
+
+    @skip_on_dry_run
+    def perform_copy_operation(self, source: Path, destination: Path):
+        logger.debug(f"Copying fil {source} to file {destination}")
+        destination.write_bytes(source.read_bytes())
+
+    def transfer_image(self, image: CameraImage):
+        logger.debug(f"Dry run: {self.settings.DRY_RUN}")
+        logger.debug(image.all_attributes)
+        logger.debug(image.generate_new_file_name())
+        logger.debug(
+            f"Copying {image} to {self.main_photos_folder}/{image.generate_new_file_name()}"
+        )
+        self.perform_copy_operation(
+            image.image_path, self.main_photos_folder / image.generate_new_file_name()
+        )
+
+    def transfer_photos(self):
+        for image in self.all_camera_images():
+            self.transfer_image(image)
+
+        return True
+
+    def transfer_videos(self):
+        pass

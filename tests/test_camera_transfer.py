@@ -1,7 +1,8 @@
 import pytest
 
-from camera_transfer.camera_transfer import CameraTransfer
-from camera_transfer.dotenv_config import Settings
+from cameratransfer.camera_transfer import CameraTransfer
+from cameratransfer.dotenv_config import Settings
+
 
 @pytest.fixture
 def settings_dry_run():

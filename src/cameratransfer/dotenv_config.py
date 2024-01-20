@@ -19,4 +19,3 @@ class Settings(BaseSettings, validate_assignment=True):
     #     print("parsing settings...")
     #     return Config(args, kwargs)
 
-config = Settings()

@@ -1,0 +1,66 @@
+from cameratransfer.file_data import FileData
+from cameratransfer.camera_image import CameraImage
+from cameratransfer.camera_video import CameraVideo
+from typing import Protocol, Iterator
+from datetime import datetime
+import logging
+
+logger = logging.getLogger(__name__)
+
+class InputFileGetter(Protocol):
+    def get_next_file(self) -> Iterator[FileData]:
+        ...
+
+class OutputFileWriter(Protocol):
+    def write_file(self, file_name: str, file_last_modified: datetime) -> None:
+        ...
+
+class HashStore(Protocol):
+    def __getitem__(self, hash: str) -> str:
+        ...
+
+    def __setitem__(self, hash: str, file_item: str) -> None:
+        ...
+
+
+class CameraTransfer:
+    def __init__(self, input_file_getter: InputFileGetter, model_short_names, output_file_writer: OutputFileWriter, hash_store: HashStore) -> None:
+        self.input_file_getter = input_file_getter
+        self.output_file_writer = output_file_writer
+        self.model_short_names = model_short_names
+        self.hash_store = hash_store
+
+    def run(self) -> None:
+        logger.debug("Starting Camera Transfer")
+        for file_to_process in  self.input_file_getter.get_next_file():
+            logger.debug(file_to_process.file_name)
+
+            if file_to_process.file_category == "image":
+                camera_image = CameraImage(
+                    image_bytes=file_to_process.file_bytes,
+                    image_basename=file_to_process.file_name,
+                    model_short_names=self.model_short_names,
+                )
+                new_file_name = camera_image.generate_new_file_name()
+                new_last_modified = file_to_process.file_last_modified
+                logger.debug(new_file_name)
+
+            if file_to_process.file_category == "video":
+                camera_video = CameraVideo(
+                    video_bytes=file_to_process.file_bytes,
+                    video_basename=file_to_process.file_name,
+                    video_modification_time=file_to_process.file_last_modified
+                )
+                new_file_name = camera_video.generate_new_file_name()
+                new_last_modified = file_to_process.file_last_modified
+                logger.debug(new_file_name)
+
+            self.output_file_writer.write_file(new_file_name, new_last_modified)
+
+            
+
+
+
+            
+
+
