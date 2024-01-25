@@ -37,7 +37,7 @@ model_short_names ={
 
 if __name__ == "__main__":
     set_up_logging(log_level="DEBUG")
-    camera_transfer = CameraTransfer(
+    camera_transfer_operation = CameraTransfer(
         input_file_getter=OSFileGetter(
             location="/mnt/d/projects/camera-transfer/tests/DCIM", file_extensions={".jpg", ".JPG", ".jpeg", ".JPEG"}, file_category = "image"
         ),
@@ -47,4 +47,4 @@ if __name__ == "__main__":
     )
 
 
-    camera_transfer.run()
+    camera_transfer_operation.run()

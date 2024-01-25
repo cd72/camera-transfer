@@ -16,10 +16,10 @@ class OutputFileWriter(Protocol):
         ...
 
 class HashStore(Protocol):
-    def __getitem__(self, hash: str) -> str:
+    def __setitem__(self, hash: bytes, file_item: str) -> None:
         ...
 
-    def __setitem__(self, hash: str, file_item: str) -> None:
+    def __contains__(self, hash:bytes) -> bool:
         ...
 
 
@@ -35,15 +35,24 @@ class CameraTransfer:
         for file_to_process in  self.input_file_getter.get_next_file():
             logger.debug(file_to_process.file_name)
 
+
             if file_to_process.file_category == "image":
+                print(f"file_to_process.file_name: {file_to_process.file_name}")
+                logger.debug(f"file_to_process.file_name: {file_to_process.file_name}")
                 camera_image = CameraImage(
                     image_bytes=file_to_process.file_bytes,
                     image_basename=file_to_process.file_name,
                     model_short_names=self.model_short_names,
                 )
+
+                if camera_image.image_hash in self.hash_store:
+                    continue
+
                 new_file_name = camera_image.generate_new_file_name()
                 new_last_modified = file_to_process.file_last_modified
                 logger.debug(new_file_name)
+                self.output_file_writer.write_file(new_file_name, new_last_modified)
+                self.hash_store[camera_image.image_hash] = new_file_name
 
             if file_to_process.file_category == "video":
                 camera_video = CameraVideo(
@@ -51,11 +60,16 @@ class CameraTransfer:
                     video_basename=file_to_process.file_name,
                     video_modification_time=file_to_process.file_last_modified
                 )
+                if camera_video.video_hash in self.hash_store:
+                    continue
+            
                 new_file_name = camera_video.generate_new_file_name()
                 new_last_modified = file_to_process.file_last_modified
                 logger.debug(new_file_name)
+                self.output_file_writer.write_file(new_file_name, new_last_modified)
+                self.hash_store[camera_video.video_hash] = new_file_name
 
-            self.output_file_writer.write_file(new_file_name, new_last_modified)
+
 
             
 

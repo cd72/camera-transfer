@@ -17,7 +17,6 @@ class OSFileGetter:
         return (p.resolve() for p in self.path.glob("**/*") if p.suffix in self.file_extensions)
 
     def get_next_file(self) -> Iterator[FileData]:
-        logger.info("in get_next_file")
         for file in self.list_files():
             logger.info("in loop with file: %s", file)
             yield FileData(
