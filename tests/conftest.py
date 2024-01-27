@@ -11,7 +11,7 @@ from datetime import datetime
 
 
 @pytest.fixture()
-def get_file_bytes():
+def get_file_content():
     def _(file_path: str) -> bytes:
         return (Path(__file__).parent / file_path).read_bytes()
 

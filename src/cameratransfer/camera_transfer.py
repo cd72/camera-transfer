@@ -1,4 +1,4 @@
-from cameratransfer.file_data import FileData
+from cameratransfer.camera_file import CameraFile
 from cameratransfer.camera_image import CameraImage
 from cameratransfer.camera_video import CameraVideo
 from typing import Protocol, Iterator
@@ -8,7 +8,7 @@ import logging
 logger = logging.getLogger(__name__)
 
 class InputFileGetter(Protocol):
-    def get_next_file(self) -> Iterator[FileData]:
+    def get_next_file(self) -> Iterator[CameraFile]:
         ...
 
 class OutputFileWriter(Protocol):
@@ -33,19 +33,19 @@ class CameraTransfer:
     def run(self) -> None:
         logger.debug("Starting Camera Transfer")
         for file_to_process in  self.input_file_getter.get_next_file():
-            logger.debug(file_to_process.file_name)
+            logger.debug("Processing input file %s", file_to_process.file_name)
 
 
             if file_to_process.file_category == "image":
-                print(f"file_to_process.file_name: {file_to_process.file_name}")
                 logger.debug(f"file_to_process.file_name: {file_to_process.file_name}")
                 camera_image = CameraImage(
-                    image_bytes=file_to_process.file_bytes,
+                    image_bytes=file_to_process.file_content,
                     image_basename=file_to_process.file_name,
                     model_short_names=self.model_short_names,
                 )
 
                 if camera_image.image_hash in self.hash_store:
+                    logger.debug("Skipping duplicate photo")
                     continue
 
                 new_file_name = camera_image.generate_new_file_name()
@@ -56,11 +56,12 @@ class CameraTransfer:
 
             if file_to_process.file_category == "video":
                 camera_video = CameraVideo(
-                    video_bytes=file_to_process.file_bytes,
+                    video_bytes=file_to_process.file_content,
                     video_basename=file_to_process.file_name,
                     video_modification_time=file_to_process.file_last_modified
                 )
                 if camera_video.video_hash in self.hash_store:
+                    logger.debug("Skipping duplicate video")
                     continue
             
                 new_file_name = camera_video.generate_new_file_name()
