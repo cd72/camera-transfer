@@ -11,6 +11,7 @@ class CameraVideo:
     file_content: bytes
     file_last_modified: datetime
     file_category: str
+    extra_fields: dict[str, dict[str, str]]
     def generate_new_file_name(self) -> str:
         logger.debug(self.file_name)
         logger.debug(self.file_last_modified)

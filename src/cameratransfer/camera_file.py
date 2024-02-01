@@ -10,6 +10,7 @@ class CameraFile(Protocol):
     file_content: bytes
     file_last_modified: datetime
     file_category: str
+    extra_fields: dict[str, dict[str, str]]
 
     def file_hash(self) -> bytes:
         ...

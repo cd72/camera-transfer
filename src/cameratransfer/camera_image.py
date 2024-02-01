@@ -14,17 +14,18 @@ class CameraImage():
     file_content: bytes
     file_last_modified: datetime
     file_category: str
-    model_short_names: dict[str, str]
-    _exif: exif.Image = None
+    extra_fields: dict[str, dict[str, str]]
     
     def __post_init__(self) -> None:
         self._exif = exif.Image(self.file_content)
+        self._model_short_names = self.extra_fields["model_short_names"]
+
 
     def generate_new_file_name(self):
         filename, file_extension = os.path.splitext(self.file_name)
         return (
             f"{self.condensed_date_string}_"
-            f"{self.model_short_name}_"
+            f"{self.model_short_name()}_"
             f"{self.get_image_file_name_digits()}"
             f"{file_extension}"
         )
@@ -43,13 +44,12 @@ class CameraImage():
         logger.debug(f"digits           : {digits}")
         return digits
 
-    @property
     def model(self) -> str:
         return self._exif.get("model").strip()
 
-    @property
+
     def model_short_name(self) -> str:
-        return self.model_short_names[self.model]
+        return self._model_short_names[self.model()]
 
     @property
     def condensed_date_string(self) -> str:

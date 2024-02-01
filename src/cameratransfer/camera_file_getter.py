@@ -27,24 +27,39 @@ class CameraFileGetter:
     file_getter: FileGetter
     model_short_names: dict[str, str]
 
+    file_type_mapping = {
+        ".jpg": "image",
+        ".jpeg": "image",
+        ".JPG": "image",
+        ".JPEG": "image",
+        ".mov": "video",
+        ".MOV": "video",
+        ".mp4": "video",
+        ".MP4": "video",
+        ".png": "image",
+        ".PNG": "image"
+        # TODO: Add more
+        # ".mp3": "audio",
+        # ".MP3": "audio"
+    }
+    dispatch_table = {
+        "image": CameraImage,
+        "video": CameraVideo       
+    }
+
     def get_next_file(self) -> Iterator[CameraFile]:
         for file in self.file_getter.get_next_file():
             file_suffix = Path(file.file_name).suffix
-            if file_suffix in {".jpg", ".jpeg", ".JPG", ".JPEG"}:
-                yield CameraImage(
-                    file_name=file.file_name,
-                    file_content=file.file_content,
-                    file_last_modified=file.file_last_modified,
-                    file_category="image",
-                    model_short_names=self.model_short_names
-                )
-            elif file_suffix in {".mov", ".MOV", ".mp4", ".MP4"}:
-                yield CameraVideo(
-                    file_name=file.file_name,
-                    file_content=file.file_content,
-                    file_last_modified=file.file_last_modified,
-                    file_category="video",
-                )
-            else:
-                logger.warning("Unknown file type: %s", file_suffix)
-                raise NotImplementedError
+            logger.debug("File suffix: %s", file_suffix)
+            file_category = self.file_type_mapping[file_suffix]
+            logger.debug("File category: %s", file_category)
+            CameraFileClass = self.dispatch_table[file_category]
+
+            yield CameraFileClass(
+                file_name=file.file_name,
+                file_content=file.file_content,
+                file_last_modified=file.file_last_modified,
+                file_category=file_category,
+                extra_fields={"model_short_names": self.model_short_names}
+
+            )
