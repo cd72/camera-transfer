@@ -2,20 +2,26 @@ import exif # type: ignore
 import hashlib
 import logging
 import os
+from dataclasses import dataclass
+from datetime import datetime
+from typing import Optional
 
 logger = logging.getLogger(__name__)
 
-class CameraImage:
-
-    def __init__(self, image_bytes: bytes, image_basename: str, model_short_names: dict):
-        self.image_bytes = image_bytes
-        self.image_basename = image_basename
-        self.model_short_names = model_short_names
-        self._exif = exif.Image(self.image_bytes)
+@dataclass
+class CameraImage():
+    file_name: str
+    file_content: bytes
+    file_last_modified: datetime
+    file_category: str
+    model_short_names: dict[str, str]
+    _exif: exif.Image = None
     
+    def __post_init__(self) -> None:
+        self._exif = exif.Image(self.file_content)
 
     def generate_new_file_name(self):
-        filename, file_extension = os.path.splitext(self.image_basename)
+        filename, file_extension = os.path.splitext(self.file_name)
         return (
             f"{self.condensed_date_string}_"
             f"{self.model_short_name}_"
@@ -23,12 +29,11 @@ class CameraImage:
             f"{file_extension}"
         )
 
-    @property
-    def image_hash(self) -> bytes:
-        return hashlib.sha256(self.image_bytes).digest()
+    def file_hash(self) -> bytes:
+        return hashlib.sha256(self.file_content).digest()
 
     def get_image_file_name_digits(self) -> str:
-        digits = "".join([n for n in self.image_basename if n.isdigit()])
+        digits = "".join([n for n in self.file_name if n.isdigit()])
         logger.debug(f"digits           : {digits}")
         logger.debug(f"datetime_digits  : {self.datetime_digits}")
         digits = digits.replace(self.datetime_digits, "")
