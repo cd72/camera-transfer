@@ -67,7 +67,9 @@ def test_camera_transfer(single_image_camera_file_getter, temp_os_output_file_wr
     )
     camera_transfer_operation.run()
     assert len(list(temp_os_output_file_writer.location.iterdir())) == 1
-    assert temp_os_output_file_writer.location.joinpath("2022-07-27T115409_S9700_6228.JPG").exists()
+    expected_output_file = temp_os_output_file_writer.location.joinpath("2022-07-27T115409_S9700_6228.JPG")
+    assert expected_output_file.exists()
+    assert expected_output_file.stat().st_size == 3560217
     
 
 def test_camera_transfer_duplicate(duplicate_image_camera_file_getter, temp_os_output_file_writer):
@@ -78,7 +80,10 @@ def test_camera_transfer_duplicate(duplicate_image_camera_file_getter, temp_os_o
     )
     camera_transfer_operation.run()
     assert len(list(temp_os_output_file_writer.location.iterdir())) == 1
-    assert temp_os_output_file_writer.location.joinpath("2022-07-27T115409_S9700_6228.JPG").exists()
+
+    expected_output_file = temp_os_output_file_writer.location.joinpath("2022-07-27T115409_S9700_6228.JPG")
+    assert expected_output_file.exists()
+    assert expected_output_file.stat().st_size == 3560217
 
 
 def test_video_transfer(single_video_camera_file_getter, temp_os_output_file_writer):
@@ -89,7 +94,10 @@ def test_video_transfer(single_video_camera_file_getter, temp_os_output_file_wri
     )
     camera_transfer_operation.run()
     assert len(list(temp_os_output_file_writer.location.iterdir())) == 1
-    assert temp_os_output_file_writer.location.joinpath("2024-01-25T170003_video.mp4").exists()
+
+    expected_output_file = temp_os_output_file_writer.location.joinpath("2024-01-25T170003_video.mp4")
+    assert expected_output_file.exists()
+    assert expected_output_file.stat().st_size == 1311047
 
 def test_video_transfer_duplicate(duplicate_video_camera_file_getter, temp_os_output_file_writer):
     camera_transfer_operation = CameraTransfer(
@@ -99,4 +107,7 @@ def test_video_transfer_duplicate(duplicate_video_camera_file_getter, temp_os_ou
     )
     camera_transfer_operation.run()
     assert len(list(temp_os_output_file_writer.location.iterdir())) == 1
-    assert temp_os_output_file_writer.location.joinpath("2024-01-25T170003_video.mp4").exists()
+
+    expected_output_file = temp_os_output_file_writer.location.joinpath("2024-01-25T170003_video.mp4")
+    assert expected_output_file.exists()
+    assert expected_output_file.stat().st_size == 1311047

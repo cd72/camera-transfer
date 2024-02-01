@@ -11,7 +11,7 @@ class CameraFileGetter(Protocol):
         ...
 
 class OutputFileWriter(Protocol):
-    def write_file(self, file_name: str, file_last_modified: datetime) -> None:
+    def write_file(self, file_name: str, file_last_modified: datetime, file_content: bytes) -> None:
         ...
 
 
@@ -36,10 +36,13 @@ class CameraTransfer:
             return
 
         new_file_name = camera_file.generate_new_file_name()
-        new_last_modified = camera_file.file_last_modified
         logger.debug(new_file_name)
-        self.output_file_writer.write_file(new_file_name, new_last_modified)
-        self.hash_store[camera_file.file_hash()] = new_file_name
+        self.output_file_writer.write_file(
+            camera_file.generate_new_file_name(),
+            camera_file.file_last_modified,
+            camera_file.file_content
+            )
+        self.hash_store[camera_file.file_hash()] = camera_file.generate_new_file_name()
 
     def run(self) -> None:
         logger.debug("Running Camera Transfer")
