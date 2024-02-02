@@ -5,6 +5,7 @@ from typing import Protocol
 
 logger = logging.getLogger(__name__)
 
+@dataclass
 class CameraFile(Protocol):
     file_name: str
     file_content: bytes
