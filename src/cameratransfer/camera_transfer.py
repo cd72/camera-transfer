@@ -3,6 +3,7 @@ from datetime import datetime
 from dataclasses import dataclass
 from cameratransfer.camera_file import CameraFile
 import logging
+from pathlib import Path
 
 logger = logging.getLogger(__name__)
 
@@ -11,7 +12,7 @@ class CameraFileGetter(Protocol):
         ...
 
 class OutputFileWriter(Protocol):
-    def write_file(self, file_name: str, file_last_modified: datetime, file_content: bytes) -> None:
+    def write_file(self, file_name: str, file_last_modified: datetime, file_content: bytes, sub_folder: Path) -> None:
         ...
 
 
@@ -36,11 +37,13 @@ class CameraTransfer:
             return
 
         new_file_name = camera_file.generate_new_file_name()
+        sub_folder = Path(datetime.now().strftime("%Y/%m"))
         logger.debug(new_file_name)
         self.output_file_writer.write_file(
             camera_file.generate_new_file_name(),
             camera_file.file_last_modified,
-            camera_file.file_content
+            camera_file.file_content,
+            sub_folder=sub_folder
             )
         self.hash_store[camera_file.file_hash()] = camera_file.generate_new_file_name()
 
