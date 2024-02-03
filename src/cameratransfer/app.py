@@ -35,16 +35,16 @@ model_short_names ={
         "TFY-LX1": "X8",
     }
 
-if __name__ == "__main__":
-    set_up_logging(log_level="DEBUG")
-    camera_transfer_operation = CameraTransfer(
-        camera_file_getter==OSFileGetter(
-            location="/mnt/d/projects/camera-transfer/tests/DCIM", file_extensions={".jpg", ".JPG", ".jpeg", ".JPEG"}, file_category = "image"
-        ),
-        model_short_names=model_short_names,
-        output_file_writer=OSOutputFileWriter(location="/mnt/d/projects/camera-transfer/tests/DCIM"),
-        hash_store=HashStore(filename=":memory:"),
-    )
+# if __name__ == "__main__":
+#     set_up_logging(log_level="DEBUG")
+#     camera_transfer_operation = CameraTransfer(
+#         camera_file_getter==OSFileGetter(
+#             location="/mnt/d/projects/camera-transfer/tests/DCIM", file_extensions={".jpg", ".JPG", ".jpeg", ".JPEG"}
+#         ),
+#         model_short_names=model_short_names,
+#         output_file_writer=OSOutputFileWriter(location="/mnt/d/projects/camera-transfer/tests/DCIM"),
+#         hash_store=HashStore(filename=":memory:"),
+#     )
 
 
-    camera_transfer_operation.run()
+#     camera_transfer_operation.run()

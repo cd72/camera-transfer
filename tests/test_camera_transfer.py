@@ -30,7 +30,6 @@ def test_camera_transfer_new(single_image_test_settings):
             file_getter=OSFileGetter(
                 location=single_image_test_settings.CAMERA_FOLDER,
                 file_extensions={".jpg", ".JPG"},
-                file_category="image",
             ),
             model_short_names={"COOLPIX S9700": "S9700"},
         ),
@@ -56,7 +55,7 @@ def test_camera_transfer_new(single_image_test_settings):
 def single_image_os_file_getter(tmp_path):
     location = str(Path(__file__).parent / "DCIM/single_image")
     return OSFileGetter(
-        location=location, file_extensions={".jpg", ".JPG"}, file_category="image"
+        location=location, file_extensions={".jpg", ".JPG"}
     )
 
 
@@ -64,7 +63,7 @@ def single_image_os_file_getter(tmp_path):
 def duplicate_image_os_file_getter():
     location = str(Path(__file__).parent / "DCIM/duplicate_image")
     return OSFileGetter(
-        location=location, file_extensions={".jpg", ".JPG"}, file_category="image"
+        location=location, file_extensions={".jpg", ".JPG"}
     )
 
 
@@ -74,7 +73,6 @@ def single_video_os_file_getter():
     return OSFileGetter(
         location=location,
         file_extensions={".mov", ".MOV", ".mp4", ".MP4"},
-        file_category="video",
     )
 
 
@@ -84,7 +82,6 @@ def duplicate_video_os_file_getter():
     return OSFileGetter(
         location=location,
         file_extensions={".mov", ".MOV", ".mp4", ".MP4"},
-        file_category="video",
     )
 
 

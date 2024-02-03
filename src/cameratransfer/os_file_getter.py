@@ -4,15 +4,17 @@ from cameratransfer.camera_file_getter import File
 from typing import Iterator
 from datetime import datetime
 import logging
+from dataclasses import dataclass
 
 logger = logging.getLogger(__name__)
 
+@dataclass
 class OSFileGetter:
-    def __init__(self, location: str, file_extensions: set[str], file_category: str) -> None:
-        self.location = location
-        self.file_extensions = file_extensions
-        self.file_category = file_category
-        self.path = Path(location)
+    location: str
+    file_extensions: set[str]
+
+    def __post_init__(self):
+        self.path = Path(self.location)
 
     def list_files(self) -> Iterator[Path]:
         return (p.resolve() for p in self.path.glob("**/*") if p.suffix in self.file_extensions)
