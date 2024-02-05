@@ -18,10 +18,10 @@ class CameraImage():
     
     def __post_init__(self) -> None:
         self._exif = exif.Image(self.file_content)
-        self._model_short_names = self.extra_fields["model_short_names"]
+        self._camera_model_short_names = self.extra_fields["camera_model_short_names"]
 
 
-    def generate_new_file_name(self):
+    def generate_new_file_name(self) -> str:
         filename, file_extension = os.path.splitext(self.file_name)
         return (
             f"{self.condensed_date_string}_"
@@ -49,7 +49,7 @@ class CameraImage():
 
 
     def model_short_name(self) -> str:
-        return self._model_short_names[self.model()]
+        return self._camera_model_short_names[self.model()]
 
     @property
     def condensed_date_string(self) -> str:

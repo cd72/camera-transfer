@@ -13,7 +13,7 @@ class OSFileGetter:
     location: str
     file_extensions: set[str]
 
-    def __post_init__(self):
+    def __post_init__(self) -> None:
         self.path = Path(self.location)
 
     def list_files(self) -> Iterator[Path]:

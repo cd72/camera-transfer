@@ -7,6 +7,7 @@ from cameratransfer.os_file_getter import OSFileGetter
 from cameratransfer.os_output_file_writer import OSOutputFileWriter
 from cameratransfer.hash_store import HashStore
 from cameratransfer.camera_file_getter import CameraFileGetter
+from cameratransfer import app
 from datetime import datetime
 
 import logging
@@ -15,34 +16,51 @@ logger = logging.getLogger(__name__)
 
 
 @pytest.fixture
-def single_image_test_settings(tmp_path):
+def single_image_test_settings(tmp_path: Path) -> Settings:
     return Settings(
-        CT_CAMERA_FOLDER=str(Path(__file__).parent / "DCIM/single_image"),
-        CT_MAIN_PHOTOS_FOLDER=tmp_path,
-        CT_SQLITE_DATABASE=":memory:",
-        CT_DRY_RUN=False,
+        camera_folder=Path(__file__).parent / "DCIM/single_image",
+        main_photos_folder=tmp_path,
+        sqlite_database=":memory:",
+        dry_run=False,
+        camera_model_short_names={"COOLPIX S9700": "S9700"},
     )
 
 
-def test_camera_transfer_new(single_image_test_settings):
+def test_app_load_dotenv() -> None:
+    settings = app.load_settings_from_dotenv(Path(__file__).parent / "test.env")
+
+    assert settings.dry_run == False
+    assert settings.camera_model_short_names == {"COOLPIX S9700": "S9700"}
+    assert settings.main_photos_folder == Path(
+        "/mnt/d/projects/camera-transfer/tests/DCIM"
+    )
+    assert settings.camera_folder == Path(
+        "/mnt/d/projects/camera-transfer/tests/DCIM/single_image"
+    )
+    assert settings.sqlite_database == Path(
+        "/mnt/d/projects/camera-transfer/tests/test.db"
+    )
+
+
+def test_camera_transfer_new(single_image_test_settings: Settings) -> None:
     camera_transfer = CameraTransfer(
         camera_file_getter=CameraFileGetter(
             file_getter=OSFileGetter(
-                location=single_image_test_settings.CAMERA_FOLDER,
+                location=single_image_test_settings.camera_folder,
                 file_extensions={".jpg", ".JPG"},
             ),
-            model_short_names={"COOLPIX S9700": "S9700"},
+            camera_model_short_names=single_image_test_settings.camera_model_short_names,
         ),
         output_file_writer=OSOutputFileWriter(
-            base_location=single_image_test_settings.MAIN_PHOTOS_FOLDER
+            base_location=single_image_test_settings.main_photos_folder
         ),
-        hash_store=HashStore(filename=single_image_test_settings.SQLITE_DATABASE),
+        hash_store=HashStore(filename=single_image_test_settings.sqlite_database),
     )
     camera_transfer.run()
-    assert len(list(single_image_test_settings.MAIN_PHOTOS_FOLDER.iterdir())) == 1
+    assert len(list(single_image_test_settings.main_photos_folder.iterdir())) == 1
 
     expected_output_file = (
-        Path(single_image_test_settings.MAIN_PHOTOS_FOLDER)
+        Path(single_image_test_settings.main_photos_folder)
         / datetime.now().strftime("%Y")
         / datetime.now().strftime("%m")
         / "2022-07-27T115409_S9700_6228.JPG"
@@ -52,23 +70,19 @@ def test_camera_transfer_new(single_image_test_settings):
 
 
 @pytest.fixture
-def single_image_os_file_getter(tmp_path):
+def single_image_os_file_getter() -> OSFileGetter:
     location = str(Path(__file__).parent / "DCIM/single_image")
-    return OSFileGetter(
-        location=location, file_extensions={".jpg", ".JPG"}
-    )
+    return OSFileGetter(location=location, file_extensions={".jpg", ".JPG"})
 
 
 @pytest.fixture
-def duplicate_image_os_file_getter():
+def duplicate_image_os_file_getter() -> OSFileGetter:
     location = str(Path(__file__).parent / "DCIM/duplicate_image")
-    return OSFileGetter(
-        location=location, file_extensions={".jpg", ".JPG"}
-    )
+    return OSFileGetter(location=location, file_extensions={".jpg", ".JPG"})
 
 
 @pytest.fixture
-def single_video_os_file_getter():
+def single_video_os_file_getter() -> OSFileGetter:
     location = str(Path(__file__).parent / "DCIM/single_video")
     return OSFileGetter(
         location=location,
@@ -77,7 +91,7 @@ def single_video_os_file_getter():
 
 
 @pytest.fixture
-def duplicate_video_os_file_getter():
+def duplicate_video_os_file_getter() -> OSFileGetter:
     location = str(Path(__file__).parent / "DCIM/duplicate_video")
     return OSFileGetter(
         location=location,
@@ -86,43 +100,53 @@ def duplicate_video_os_file_getter():
 
 
 @pytest.fixture
-def single_image_camera_file_getter(single_image_os_file_getter):
+def single_image_camera_file_getter(
+    single_image_os_file_getter: OSFileGetter,
+) -> CameraFileGetter:
     return CameraFileGetter(
         file_getter=single_image_os_file_getter,
-        model_short_names={"COOLPIX S9700": "S9700"},
+        camera_model_short_names={"COOLPIX S9700": "S9700"},
     )
 
 
 @pytest.fixture
-def duplicate_image_camera_file_getter(duplicate_image_os_file_getter):
+def duplicate_image_camera_file_getter(
+    duplicate_image_os_file_getter: OSFileGetter,
+) -> CameraFileGetter:
     return CameraFileGetter(
         file_getter=duplicate_image_os_file_getter,
-        model_short_names={"COOLPIX S9700": "S9700"},
+        camera_model_short_names={"COOLPIX S9700": "S9700"},
     )
 
 
 @pytest.fixture
-def single_video_camera_file_getter(single_video_os_file_getter):
+def single_video_camera_file_getter(
+    single_video_os_file_getter: OSFileGetter,
+) -> CameraFileGetter:
     return CameraFileGetter(
-        file_getter=single_video_os_file_getter, model_short_names={}
+        file_getter=single_video_os_file_getter, camera_model_short_names={}
     )
 
 
 @pytest.fixture
-def duplicate_video_camera_file_getter(duplicate_video_os_file_getter):
+def duplicate_video_camera_file_getter(
+    duplicate_video_os_file_getter: OSFileGetter,
+) -> CameraFileGetter:
     return CameraFileGetter(
-        file_getter=duplicate_video_os_file_getter, model_short_names={}
+        file_getter=duplicate_video_os_file_getter, camera_model_short_names={}
     )
 
 
 @pytest.fixture
-def temp_os_output_file_writer(tmp_path):
+def temp_os_output_file_writer(tmp_path: Path) -> OSOutputFileWriter:
     return OSOutputFileWriter(base_location=tmp_path)
 
 
 def test_camera_transfer(
-    single_image_camera_file_getter, temp_os_output_file_writer, tmp_path
-):
+    single_image_camera_file_getter: CameraFileGetter,
+    temp_os_output_file_writer: OSOutputFileWriter,
+    tmp_path: Path,
+) -> None:
     camera_transfer_operation = CameraTransfer(
         camera_file_getter=single_image_camera_file_getter,
         output_file_writer=temp_os_output_file_writer,
@@ -142,8 +166,8 @@ def test_camera_transfer(
 
 
 def test_camera_transfer_duplicate(
-    duplicate_image_camera_file_getter, temp_os_output_file_writer, tmp_path
-):
+    duplicate_image_camera_file_getter: CameraFileGetter, temp_os_output_file_writer: OSOutputFileWriter, tmp_path: Path
+) -> None:
     camera_transfer_operation = CameraTransfer(
         camera_file_getter=duplicate_image_camera_file_getter,
         output_file_writer=temp_os_output_file_writer,
@@ -163,8 +187,8 @@ def test_camera_transfer_duplicate(
 
 
 def test_video_transfer(
-    single_video_camera_file_getter, temp_os_output_file_writer, tmp_path
-):
+    single_video_camera_file_getter: CameraFileGetter, temp_os_output_file_writer: OSOutputFileWriter, tmp_path: Path
+) -> None:
     camera_transfer_operation = CameraTransfer(
         camera_file_getter=single_video_camera_file_getter,
         output_file_writer=temp_os_output_file_writer,
@@ -184,8 +208,8 @@ def test_video_transfer(
 
 
 def test_video_transfer_duplicate(
-    duplicate_video_camera_file_getter, temp_os_output_file_writer, tmp_path
-):
+    duplicate_video_camera_file_getter: CameraFileGetter, temp_os_output_file_writer: OSOutputFileWriter, tmp_path: Path
+) -> None:
     camera_transfer_operation = CameraTransfer(
         camera_file_getter=duplicate_video_camera_file_getter,
         output_file_writer=temp_os_output_file_writer,

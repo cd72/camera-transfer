@@ -3,9 +3,11 @@ from cameratransfer.dotenv_config import Settings
 from cameratransfer.os_file_getter import OSFileGetter
 from cameratransfer.os_output_file_writer import OSOutputFileWriter
 from cameratransfer.hash_store import HashStore
+from pathlib import Path
 import logging
 
-def set_up_logging(log_level: str):
+
+def set_up_logging(log_level: str) -> None:
     formatter = logging.Formatter(
         "%(module)20s %(asctime)s.%(msecs)03d [%(filename)30s:%(lineno)04d] %(levelname)-8s %(funcName)-30s %(message)s"
         #%(name)s
@@ -24,24 +26,32 @@ def set_up_logging(log_level: str):
     logging.getLogger("s3transfer").setLevel(logging.WARNING)
 
 
+def load_settings_from_dotenv(dotenv_file: Path) -> Settings:
+    s = Settings(_env_file='/mnt/d/projects/camera-transfer/tests/test.env')
+    # s = Settings()
+
+    print(s)
+    return s
+
 
 logger = logging.getLogger(__name__)
 logger.info("Running")
 
-model_short_names ={
+camera_model_short_names ={
         "COOLPIX S9700": "S9700",
         "Canon IXUS 115 HS": "IXUS115HS",
         "NIKON Z fc": "ZFC",
         "TFY-LX1": "X8",
     }
 
-# if __name__ == "__main__":
+if __name__ == "__main__":
+    load_settings_from_dotenv(Path("/mnt/d/projects/camera-transfer/tests/test.env"))
 #     set_up_logging(log_level="DEBUG")
 #     camera_transfer_operation = CameraTransfer(
 #         camera_file_getter==OSFileGetter(
 #             location="/mnt/d/projects/camera-transfer/tests/DCIM", file_extensions={".jpg", ".JPG", ".jpeg", ".JPEG"}
 #         ),
-#         model_short_names=model_short_names,
+#         camera_model_short_names=model_short_names,
 #         output_file_writer=OSOutputFileWriter(location="/mnt/d/projects/camera-transfer/tests/DCIM"),
 #         hash_store=HashStore(filename=":memory:"),
 #     )

@@ -47,7 +47,7 @@ dispatch_table: dict[str, type[CameraFile]] = {
 @dataclass
 class CameraFileGetter:
     file_getter: FileGetter
-    model_short_names: dict[str, str]
+    camera_model_short_names: dict[str, str]
 
     def get_next_file(self) -> Iterator[CameraFile]:
         for file in self.file_getter.get_next_file():
@@ -62,5 +62,5 @@ class CameraFileGetter:
                 file_content=file.file_content,
                 file_last_modified=file.file_last_modified,
                 file_category=file_category,
-                extra_fields={"model_short_names": self.model_short_names}
+                extra_fields={"camera_model_short_names": self.camera_model_short_names}
             )

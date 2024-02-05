@@ -1,5 +1,6 @@
 from pathlib import Path
 import pytest
+from typing import Callable
 from datetime import datetime
 
 # @pytest.fixture()
@@ -11,7 +12,7 @@ from datetime import datetime
 
 
 @pytest.fixture()
-def get_file_content():
+def get_file_content() -> Callable[[str], bytes]:
     def _(file_path: str) -> bytes:
         return (Path(__file__).parent / file_path).read_bytes()
 
@@ -19,7 +20,7 @@ def get_file_content():
 
 
 @pytest.fixture()
-def get_file_modification_time():
+def get_file_modification_time() -> Callable[[str], datetime]:
     def _(file_path: str) -> datetime:
         return datetime.fromtimestamp(
             (Path(__file__).parent / file_path).stat().st_mtime

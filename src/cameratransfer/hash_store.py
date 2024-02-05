@@ -2,7 +2,7 @@ import sqlite3
 
 
 class HashStore():
-    def __init__(self, filename=None):
+    def __init__(self, filename: str) -> None:
         self.conn = sqlite3.connect(filename)
         self.conn.execute(
             "CREATE TABLE IF NOT EXISTS hash_store (hash text unique, image_file text)"
