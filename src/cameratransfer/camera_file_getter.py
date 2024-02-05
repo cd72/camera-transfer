@@ -1,11 +1,12 @@
+import logging
+from dataclasses import dataclass
+from datetime import datetime
+from pathlib import Path
+from typing import Iterator, Protocol
+
+from cameratransfer.camera_file import CameraFile
 from cameratransfer.camera_image import CameraImage
 from cameratransfer.camera_video import CameraVideo
-from cameratransfer.camera_file import CameraFile
-from typing import Protocol, Iterator
-from datetime import datetime
-from dataclasses import dataclass
-from pathlib import Path
-import logging
 
 logger = logging.getLogger(__name__)
 

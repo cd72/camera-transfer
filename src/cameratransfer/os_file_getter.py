@@ -10,14 +10,11 @@ logger = logging.getLogger(__name__)
 
 @dataclass
 class OSFileGetter:
-    location: str
+    location: Path
     file_extensions: set[str]
 
-    def __post_init__(self) -> None:
-        self.path = Path(self.location)
-
     def list_files(self) -> Iterator[Path]:
-        return (p.resolve() for p in self.path.glob("**/*") if p.suffix in self.file_extensions)
+        return (p.resolve() for p in self.location.glob("**/*") if p.suffix in self.file_extensions)
 
     def get_next_file(self) -> Iterator[File]:
         for file in self.list_files():

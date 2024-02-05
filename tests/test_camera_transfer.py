@@ -36,48 +36,21 @@ def test_app_load_dotenv() -> None:
     assert settings.sqlite_database is None
 
 
-def test_camera_transfer_new(single_image_test_settings: Settings) -> None:
-    camera_transfer = CameraTransfer(
-        camera_file_getter=CameraFileGetter(
-            file_getter=OSFileGetter(
-                location=single_image_test_settings.camera_folder,
-                file_extensions={".jpg", ".JPG"},
-            ),
-            camera_model_short_names=single_image_test_settings.camera_model_short_names,
-        ),
-        output_file_writer=OSOutputFileWriter(
-            base_location=single_image_test_settings.main_photos_folder
-        ),
-        hash_store=HashStore(filename=single_image_test_settings.sqlite_database),
-    )
-    camera_transfer.run()
-    assert len(list(single_image_test_settings.main_photos_folder.iterdir())) == 1
-
-    expected_output_file = (
-        Path(single_image_test_settings.main_photos_folder)
-        / datetime.now().strftime("%Y")
-        / datetime.now().strftime("%m")
-        / "2022-07-27T115409_S9700_6228.JPG"
-    )
-    assert expected_output_file.exists()
-    assert expected_output_file.stat().st_size == 3560217
-
-
 @pytest.fixture
 def single_image_os_file_getter() -> OSFileGetter:
-    location = str(Path(__file__).parent / "DCIM/single_image")
+    location = Path(__file__).parent / "DCIM/single_image"
     return OSFileGetter(location=location, file_extensions={".jpg", ".JPG"})
 
 
 @pytest.fixture
 def duplicate_image_os_file_getter() -> OSFileGetter:
-    location = str(Path(__file__).parent / "DCIM/duplicate_image")
+    location = Path(__file__).parent / "DCIM/duplicate_image"
     return OSFileGetter(location=location, file_extensions={".jpg", ".JPG"})
 
 
 @pytest.fixture
 def single_video_os_file_getter() -> OSFileGetter:
-    location = str(Path(__file__).parent / "DCIM/single_video")
+    location = Path(__file__).parent / "DCIM/single_video"
     return OSFileGetter(
         location=location,
         file_extensions={".mov", ".MOV", ".mp4", ".MP4"},
@@ -86,7 +59,7 @@ def single_video_os_file_getter() -> OSFileGetter:
 
 @pytest.fixture
 def duplicate_video_os_file_getter() -> OSFileGetter:
-    location = str(Path(__file__).parent / "DCIM/duplicate_video")
+    location = Path(__file__).parent / "DCIM/duplicate_video"
     return OSFileGetter(
         location=location,
         file_extensions={".mov", ".MOV", ".mp4", ".MP4"},
@@ -134,6 +107,35 @@ def duplicate_video_camera_file_getter(
 @pytest.fixture
 def temp_os_output_file_writer(tmp_path: Path) -> OSOutputFileWriter:
     return OSOutputFileWriter(base_location=tmp_path)
+
+##########################################################################################
+
+
+def test_camera_transfer_new(single_image_test_settings: Settings) -> None:
+    camera_transfer = CameraTransfer(
+        camera_file_getter=CameraFileGetter(
+            file_getter=OSFileGetter(
+                location=single_image_test_settings.camera_folder,
+                file_extensions={".jpg", ".JPG"},
+            ),
+            camera_model_short_names=single_image_test_settings.camera_model_short_names,
+        ),
+        output_file_writer=OSOutputFileWriter(
+            base_location=single_image_test_settings.main_photos_folder
+        ),
+        hash_store=HashStore(filename=single_image_test_settings.sqlite_database),
+    )
+    camera_transfer.run()
+    assert len(list(single_image_test_settings.main_photos_folder.iterdir())) == 1
+
+    expected_output_file = (
+        Path(single_image_test_settings.main_photos_folder)
+        / datetime.now().strftime("%Y")
+        / datetime.now().strftime("%m")
+        / "2022-07-27T115409_S9700_6228.JPG"
+    )
+    assert expected_output_file.exists()
+    assert expected_output_file.stat().st_size == 3560217
 
 
 def test_camera_transfer(
