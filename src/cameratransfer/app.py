@@ -53,7 +53,7 @@ if __name__ == "__main__":
 #         ),
 #         camera_model_short_names=model_short_names,
 #         output_file_writer=OSOutputFileWriter(location="/mnt/d/projects/camera-transfer/tests/DCIM"),
-#         hash_store=HashStore(filename=":memory:"),
+#         hash_store=HashStore(filename=None),
 #     )
 
 
