@@ -47,6 +47,14 @@ def duplicate_video_test_settings(base_test_settings: Settings) -> Settings:
     base_test_settings.camera_folder = Path(__file__).parent / "DCIM/duplicate_video"
     return base_test_settings
 
+@pytest.fixture
+def all_files_test_settings(base_test_settings: Settings, tmp_path: Path) -> Settings:
+    sqlite_file = tmp_path / "test.db"
+    sqlite_file.touch(exist_ok=False)
+    base_test_settings.camera_folder = Path(__file__).parent / "DCIM"
+    base_test_settings.sqlite_database=sqlite_file
+
+    return base_test_settings
 
 def test_app_load_dotenv() -> None:
     settings = app.load_settings_from_dotenv(Path(__file__).parent / "test.env")
@@ -122,4 +130,10 @@ def test_video_transfer_duplicate(duplicate_video_test_settings: Settings) -> No
     )
     assert expected_output_file.exists()
     assert expected_output_file.stat().st_size == 1311047
+
+def test_all_files_transfer(all_files_test_settings: Settings) -> None:
+    camera_transfer = app.get_camera_transfer_operation(all_files_test_settings)
+    camera_transfer.run()
+    assert len(list(all_files_test_settings.main_photos_folder.glob("**/*.JPG"))) == 1
+    assert len(list(all_files_test_settings.main_videos_folder.glob("**/*.mp4"))) == 1
 

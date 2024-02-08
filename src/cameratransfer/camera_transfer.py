@@ -51,5 +51,5 @@ class CameraTransfer:
     def run(self) -> None:
         logger.debug("Running Camera Transfer")
         for camera_file in self.camera_file_getter.get_next_file():
-            logger.debug(f"processing {camera_file}")
+            logger.debug(f"processing {camera_file.file_name}")
             self.process_camera_file(camera_file)

@@ -17,8 +17,6 @@ class OSOutputFileWriter:
             fq_file_name = self.base_image_location.joinpath(sub_folder, file_name)
         elif file_category == "video":
             fq_file_name = self.base_video_location.joinpath(sub_folder, file_name)
-        else:
-            raise ValueError(f"Unknown file category: {file_category}")
         
         fq_file_name.parent.mkdir(parents=True, exist_ok=True)
         fq_file_name.touch(exist_ok=False)
