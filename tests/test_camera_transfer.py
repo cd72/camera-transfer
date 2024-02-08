@@ -91,6 +91,15 @@ def test_camera_transfer(single_image_test_settings: Settings) -> None:
     assert datetime.fromtimestamp(mtime).strftime('%Y-%m-%d %H:%M:%S') == "2024-01-25 16:53:49"
 
 
+
+def test_unknown_camera(single_image_test_settings: Settings) -> None:
+    single_image_test_settings.camera_model_short_names = {}
+    camera_transfer = app.get_camera_transfer_operation(single_image_test_settings)
+
+    with pytest.raises(KeyError):
+        camera_transfer.run()
+
+
 def test_camera_transfer_duplicate(duplicate_image_test_settings: Settings) -> None:
     camera_transfer = app.get_camera_transfer_operation(duplicate_image_test_settings)
     camera_transfer.run()

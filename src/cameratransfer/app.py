@@ -1,11 +1,13 @@
+import argparse
+import logging
+from pathlib import Path
+
+from cameratransfer.camera_file_getter import CameraFileGetter
 from cameratransfer.camera_transfer import CameraTransfer
 from cameratransfer.dotenv_config import Settings
-from cameratransfer.os_file_getter import OSFileGetter
-from cameratransfer.camera_file_getter import CameraFileGetter
-from cameratransfer.os_output_file_writer import OSOutputFileWriter
 from cameratransfer.hash_store import HashStore
-from pathlib import Path
-import logging
+from cameratransfer.os_file_getter import OSFileGetter
+from cameratransfer.os_output_file_writer import OSOutputFileWriter
 
 
 def set_up_logging(log_level: str) -> None:
@@ -26,6 +28,17 @@ def set_up_logging(log_level: str) -> None:
     logging.getLogger("urllib3").setLevel(logging.WARNING)
     logging.getLogger("s3transfer").setLevel(logging.WARNING)
 
+def parse_args() -> argparse.Namespace:
+    """Parse command line arguments."""
+    parser = argparse.ArgumentParser(
+        description="Transfer photos and videos from a camera and organise them in the photos folder."
+    )
+    parser.add_argument(
+        "--dry-run",
+        action="store_true",
+        help="Show what would be transferred without actually doing it.",
+    )
+    return parser.parse_args()
 
 def load_settings_from_dotenv(dotenv_file: Path) -> Settings:
     s = Settings(_env_file="/mnt/d/projects/camera-transfer/tests/test.env")
@@ -65,15 +78,16 @@ def get_camera_transfer_operation(settings: Settings) -> CameraTransfer:
 logger = logging.getLogger(__name__)
 logger.info("Running")
 
-camera_model_short_names = {
-    "COOLPIX S9700": "S9700",
-    "Canon IXUS 115 HS": "IXUS115HS",
-    "NIKON Z fc": "ZFC",
-    "TFY-LX1": "X8",
-}
-
 if __name__ == "__main__":
-    load_settings_from_dotenv(Path("/mnt/d/projects/camera-transfer/tests/test.env"))
+    args = parse_args()
+
+    settings = load_settings_from_dotenv(Path(__file__).parent / "settings.env")
+    if args.dry_run:
+        settings.dry_run = True
+    camera_transfer_operation = get_camera_transfer_operation(settings)
+    camera_transfer_operation.run()
+
+
 #     set_up_logging(log_level="DEBUG")
 #     camera_transfer_operation = CameraTransfer(
 #         camera_file_getter==OSFileGetter(
