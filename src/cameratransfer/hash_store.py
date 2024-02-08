@@ -3,7 +3,7 @@ from pathlib import Path
 
 
 class HashStore():
-    def __init__(self, filename: Path | None) -> None:
+    def __init__(self, filename: Path | None, dry_run: bool = False) -> None:
 
         if filename is None:
             database_file = ""
@@ -14,10 +14,12 @@ class HashStore():
         self.conn.execute(
             "CREATE TABLE IF NOT EXISTS hash_store (hash text unique, image_file text)"
         )
+        self.dry_run = dry_run
 
     def __setitem__(self, hash: bytes, file_item: str) -> None:
-        self.conn.execute("INSERT OR REPLACE INTO hash_store VALUES (?, ?)", (hash, file_item))
-        self.conn.commit()
+        if not self.dry_run:
+            self.conn.execute("INSERT OR REPLACE INTO hash_store VALUES (?, ?)", (hash, file_item))
+            self.conn.commit()
 
     
     def __contains__(self, hash:bytes) -> bool:

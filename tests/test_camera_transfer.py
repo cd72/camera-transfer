@@ -137,3 +137,10 @@ def test_all_files_transfer(all_files_test_settings: Settings) -> None:
     assert len(list(all_files_test_settings.main_photos_folder.glob("**/*.JPG"))) == 1
     assert len(list(all_files_test_settings.main_videos_folder.glob("**/*.mp4"))) == 1
 
+
+def test_all_files_transfer_dry_run(all_files_test_settings: Settings) -> None:
+    all_files_test_settings.dry_run = True
+    camera_transfer = app.get_camera_transfer_operation(all_files_test_settings)
+    camera_transfer.run()
+    assert len(list(all_files_test_settings.main_photos_folder.glob("**/*.JPG"))) == 0
+    assert len(list(all_files_test_settings.main_videos_folder.glob("**/*.mp4"))) == 0
