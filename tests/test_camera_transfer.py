@@ -87,6 +87,9 @@ def test_camera_transfer(single_image_test_settings: Settings) -> None:
     assert expected_output_file.exists()
     assert expected_output_file.stat().st_size == 3560217
 
+    mtime = expected_output_file.stat().st_mtime
+    assert datetime.fromtimestamp(mtime).strftime('%Y-%m-%d %H:%M:%S') == "2024-01-25 16:53:49"
+
 
 def test_camera_transfer_duplicate(duplicate_image_test_settings: Settings) -> None:
     camera_transfer = app.get_camera_transfer_operation(duplicate_image_test_settings)
@@ -115,6 +118,9 @@ def test_video_transfer(single_video_test_settings: Settings) -> None:
     )
     assert expected_output_file.exists()
     assert expected_output_file.stat().st_size == 1311047
+
+    mtime = expected_output_file.stat().st_mtime
+    assert datetime.fromtimestamp(mtime).strftime('%Y-%m-%d %H:%M:%S') == "2024-01-25 17:00:03"
 
 
 def test_video_transfer_duplicate(duplicate_video_test_settings: Settings) -> None:

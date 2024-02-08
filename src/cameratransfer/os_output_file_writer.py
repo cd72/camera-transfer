@@ -2,6 +2,7 @@ import logging
 from datetime import datetime
 from pathlib import Path
 from dataclasses import dataclass
+import os
 
 logger = logging.getLogger(__name__)
 
@@ -27,3 +28,5 @@ class OSOutputFileWriter:
         fq_file_name.parent.mkdir(parents=True, exist_ok=True)
         fq_file_name.touch(exist_ok=False)
         fq_file_name.write_bytes(file_content)
+
+        os.utime(fq_file_name, (file_last_modified.timestamp(), file_last_modified.timestamp()))
