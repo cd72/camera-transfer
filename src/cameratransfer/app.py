@@ -1,6 +1,7 @@
 from cameratransfer.camera_transfer import CameraTransfer
 from cameratransfer.dotenv_config import Settings
 from cameratransfer.os_file_getter import OSFileGetter
+from cameratransfer.camera_file_getter import CameraFileGetter
 from cameratransfer.os_output_file_writer import OSOutputFileWriter
 from cameratransfer.hash_store import HashStore
 from pathlib import Path
@@ -28,11 +29,32 @@ def set_up_logging(log_level: str) -> None:
 
 def load_settings_from_dotenv(dotenv_file: Path) -> Settings:
     s = Settings(_env_file='/mnt/d/projects/camera-transfer/tests/test.env')
-    # s = Settings()
 
-    print(s)
+    import rich
+    rich.print(s.model_dump())
     return s
 
+def file_getter(settings: Settings) -> OSFileGetter:
+    all_formats = settings.image_formats | settings.video_formats
+    return OSFileGetter(
+        location=settings.camera_folder, file_extensions=all_formats
+    )
+
+def camera_file_getter(settings: Settings) -> CameraFileGetter:
+    return CameraFileGetter(
+        file_getter=file_getter(settings),
+        camera_model_short_names=settings.camera_model_short_names,
+        image_formats=settings.image_formats,
+        video_formats=settings.video_formats,
+    )
+
+def get_camera_transfer_operation(settings: Settings) -> CameraTransfer:
+    return CameraTransfer(
+        camera_file_getter=camera_file_getter(settings),
+        output_file_writer=OSOutputFileWriter(base_image_location=settings.main_photos_folder, base_video_location=settings.main_photos_folder),
+        hash_store=HashStore(filename=settings.sqlite_database),
+    )
+    
 
 logger = logging.getLogger(__name__)
 logger.info("Running")
