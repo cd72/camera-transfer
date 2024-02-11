@@ -14,6 +14,7 @@ class OSFileGetter:
     file_extensions: set[str]
 
     def list_files(self) -> Iterator[Path]:
+        logger.info("Listing files in location: %s", self.location)
         return (p.resolve() for p in self.location.glob("**/*") if p.suffix in self.file_extensions)
 
     def get_next_file(self) -> Iterator[File]:

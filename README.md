@@ -2,5 +2,7 @@
 Script fo processing and organising camera photos
 
 Todo
+* debug level to dotenv
 * convert app to a class??
-* cli
+* shift dotenv to home
+* add a summary

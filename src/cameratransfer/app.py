@@ -18,12 +18,14 @@ def set_up_logging(log_level: str) -> None:
     ch = logging.StreamHandler()
     ch.setFormatter(formatter)
     ch.setLevel(logging.DEBUG)
+
     root_logger = logging.getLogger()
     root_logger.handlers.clear()
     root_logger.addHandler(ch)
+
     print(f"current root logger handlers are {logging.getLogger().handlers}")
-    print(__name__)
     root_logger.setLevel(log_level)
+
     logging.getLogger("botocore").setLevel(logging.WARNING)
     logging.getLogger("urllib3").setLevel(logging.WARNING)
     logging.getLogger("s3transfer").setLevel(logging.WARNING)
@@ -41,7 +43,7 @@ def parse_args() -> argparse.Namespace:
     return parser.parse_args()
 
 def load_settings_from_dotenv(dotenv_file: Path) -> Settings:
-    s = Settings(_env_file="/mnt/d/projects/camera-transfer/tests/test.env")
+    s = Settings(_env_file="/mnt/d/projects/camera-transfer/settings.env")
 
     import rich
 
@@ -81,22 +83,11 @@ logger.info("Running")
 if __name__ == "__main__":
     args = parse_args()
 
+    set_up_logging("DEBUG")
+
     settings = load_settings_from_dotenv(Path(__file__).parent / "settings.env")
     if args.dry_run:
         settings.dry_run = True
     camera_transfer_operation = get_camera_transfer_operation(settings)
     camera_transfer_operation.run()
 
-
-#     set_up_logging(log_level="DEBUG")
-#     camera_transfer_operation = CameraTransfer(
-#         camera_file_getter==OSFileGetter(
-#             location="/mnt/d/projects/camera-transfer/tests/DCIM", file_extensions={".jpg", ".JPG", ".jpeg", ".JPEG"}
-#         ),
-#         camera_model_short_names=model_short_names,
-#         output_file_writer=OSOutputFileWriter(location="/mnt/d/projects/camera-transfer/tests/DCIM"),
-#         hash_store=HashStore(filename=None),
-#     )
-
-
-#     camera_transfer_operation.run()

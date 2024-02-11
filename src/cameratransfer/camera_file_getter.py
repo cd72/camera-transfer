@@ -44,6 +44,7 @@ class CameraFileGetter:
 
 
     def get_next_file(self) -> Iterator[CameraFile]:
+        logger.debug("Getting next file from file_getter")
         for file in self.file_getter.get_next_file():
             file_suffix = Path(file.file_name).suffix
             logger.debug("File suffix: %s", file_suffix)
