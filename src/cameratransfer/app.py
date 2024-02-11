@@ -43,7 +43,7 @@ def parse_args() -> argparse.Namespace:
     return parser.parse_args()
 
 def load_settings_from_dotenv(dotenv_file: Path) -> Settings:
-    s = Settings(_env_file="/mnt/d/projects/camera-transfer/settings.env")
+    s = Settings(_env_file=dotenv_file)
 
     import rich
 
@@ -86,6 +86,7 @@ if __name__ == "__main__":
     set_up_logging("DEBUG")
 
     settings = load_settings_from_dotenv(Path(__file__).parent / "settings.env")
+    # "/mnt/d/projects/camera-transfer/settings.env"
     if args.dry_run:
         settings.dry_run = True
     camera_transfer_operation = get_camera_transfer_operation(settings)
