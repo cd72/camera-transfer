@@ -83,9 +83,9 @@ logger.info("Running")
 if __name__ == "__main__":
     args = parse_args()
 
-    set_up_logging("DEBUG")
 
     settings = load_settings_from_dotenv(Path(__file__).parent / "settings.env")
+    set_up_logging(settings.log_level)
     # "/mnt/d/projects/camera-transfer/settings.env"
     if args.dry_run:
         settings.dry_run = True

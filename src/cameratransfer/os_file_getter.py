@@ -19,7 +19,7 @@ class OSFileGetter:
 
     def get_next_file(self) -> Iterator[File]:
         for file in self.list_files():
-            logger.info("in loop with file: %s", file)
+            logger.debug("in list_files loop with file: %s", file.relative_to(self.location))
             yield File(
                 file.name, 
                 file.read_bytes(),

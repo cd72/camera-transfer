@@ -30,10 +30,10 @@ class CameraTransfer:
     hash_store: HashStore
 
     def process_camera_file(self, camera_file: CameraFile) -> None:
-        logger.debug("Processing camera file %s", camera_file.file_name)
+        logger.info("Processing camera file %s", camera_file.file_name)
 
         if camera_file.file_hash() in self.hash_store:
-            logger.debug("Skipping duplicate camera file")
+            logger.info("Skipping duplicate camera file")
             return
 
         new_file_name = camera_file.generate_new_file_name()
@@ -46,10 +46,10 @@ class CameraTransfer:
             file_category=camera_file.file_category,
             sub_folder=sub_folder
             )
+        logger.info("Wrote file %s", new_file_name)
         self.hash_store[camera_file.file_hash()] = camera_file.generate_new_file_name()
 
     def run(self) -> None:
         logger.debug("Running Camera Transfer")
         for camera_file in self.camera_file_getter.get_next_file():
-            logger.debug(f"processing {camera_file.file_name}")
             self.process_camera_file(camera_file)

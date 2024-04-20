@@ -22,8 +22,9 @@ def base_test_settings(tmp_path: Path) -> Settings:
         main_photos_folder=tmp_path,
         main_videos_folder=tmp_path,
         sqlite_database=None,
-        dry_run=False,
         camera_model_short_names={"COOLPIX S9700": "S9700"},
+        dry_run=False,
+        log_level="DEBUG",
     )
 
 
@@ -67,6 +68,7 @@ def test_app_load_dotenv() -> None:
     assert settings.sqlite_database is None
     assert settings.image_formats == {".jpg", ".JPG", ".jpeg", ".JPEG", ".png", ".PNG"}
     assert settings.video_formats == {".mov", ".MOV", ".mp4", ".MP4"}
+    assert settings.log_level == "DEBUG"
 
 
 
