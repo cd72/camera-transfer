@@ -77,10 +77,10 @@ def get_camera_transfer_operation(settings: Settings) -> CameraTransfer:
     )
 
 
-logger = logging.getLogger(__name__)
-logger.info("Running")
+def main() -> None:
+    logger = logging.getLogger(__name__)
+    logger.info("Running")
 
-if __name__ == "__main__":
     args = parse_args()
 
 
@@ -92,3 +92,5 @@ if __name__ == "__main__":
     camera_transfer_operation = get_camera_transfer_operation(settings)
     camera_transfer_operation.run()
 
+if __name__ == "__main__":
+    main()

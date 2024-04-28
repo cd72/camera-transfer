@@ -1,13 +1,13 @@
 [tool.poetry]
-packages = [{include = "cameratransfer", from="src"}]
-name = "camera-transfer"
+# packages = [{include = "cameratransfer", from="src"}]
+name = "cameratransfer"
 version = "0.1.0"
 description = "processes and organises photos from external devices like cameras and phones"
 authors = ["Chris Denney <chris.j.denney@gmail.com>"]
 readme = "README.md"
 
 [tool.poetry.scripts]
-camera-transfer = "camera_transfer.console:main"
+camera-transfer = "cameratransfer.app:main"
 
 [tool.poetry.dependencies]
 python = "^3.12"
