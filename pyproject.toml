@@ -15,6 +15,7 @@ python-dotenv = "^1.0.0"
 click = "^8.1.7"
 pydantic-settings = "^2.0.3"
 exif = "^1.6.0"
+rich = "^13.7.0"
 
 
 [tool.poetry.group.dev.dependencies]
@@ -23,7 +24,6 @@ mypy = "^1.5.1"
 pytest = "^7.4.2"
 coverage = {extras = ["toml"], version = "^7.4.0"}
 pytest-cov = "^4.1.0"
-rich = "^13.7.0"
 
 [build-system]
 requires = ["poetry-core"]
