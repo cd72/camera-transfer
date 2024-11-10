@@ -1,6 +1,6 @@
 from pathlib import Path
-from cameratransfer.camera_file import CameraFile
-from cameratransfer.camera_file_getter import File
+from camera_transfer.camera_file import CameraFile
+from camera_transfer.camera_file_getter import File
 from typing import Iterator
 from datetime import datetime
 import logging

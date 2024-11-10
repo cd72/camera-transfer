@@ -2,12 +2,12 @@ import argparse
 import logging
 from pathlib import Path
 
-from cameratransfer.camera_file_getter import CameraFileGetter
-from cameratransfer.camera_transfer import CameraTransfer
-from cameratransfer.dotenv_config import Settings
-from cameratransfer.hash_store import HashStore
-from cameratransfer.os_file_getter import OSFileGetter
-from cameratransfer.os_output_file_writer import OSOutputFileWriter
+from camera_transfer.camera_file_getter import CameraFileGetter
+from camera_transfer.camera_transfer import CameraTransfer
+from camera_transfer.dotenv_config import Settings
+from camera_transfer.hash_store import HashStore
+from camera_transfer.os_file_getter import OSFileGetter
+from camera_transfer.os_output_file_writer import OSOutputFileWriter
 
 
 def set_up_logging(log_level: str) -> None:
@@ -79,15 +79,17 @@ def get_camera_transfer_operation(settings: Settings) -> CameraTransfer:
 
 def main() -> None:
     logger = logging.getLogger(__name__)
-    logger.info("Running")
+    print("Running")
 
     args = parse_args()
 
-
-    settings = load_settings_from_dotenv(Path(__file__).parent / "settings.env")
+    settings_file = Path(__file__).parent / "settings.env"
+    print(f"Loading settings from {settings_file}")
+    settings = load_settings_from_dotenv(settings_file)
     set_up_logging(settings.log_level)
     # "/mnt/d/projects/camera-transfer/settings.env"
     if args.dry_run:
+        logger.info("Dry run mode")
         settings.dry_run = True
     camera_transfer_operation = get_camera_transfer_operation(settings)
     camera_transfer_operation.run()

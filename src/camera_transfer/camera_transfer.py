@@ -1,7 +1,7 @@
 from typing import Protocol, Iterator
 from datetime import datetime
 from dataclasses import dataclass
-from cameratransfer.camera_file import CameraFile
+from camera_transfer.camera_file import CameraFile
 import logging
 from pathlib import Path
 

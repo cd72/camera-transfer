@@ -4,9 +4,9 @@ from datetime import datetime
 from pathlib import Path
 from typing import Iterator, Protocol
 
-from cameratransfer.camera_file import CameraFile
-from cameratransfer.camera_image import CameraImage
-from cameratransfer.camera_video import CameraVideo
+from camera_transfer.camera_file import CameraFile
+from camera_transfer.camera_image import CameraImage
+from camera_transfer.camera_video import CameraVideo
 
 logger = logging.getLogger(__name__)
 
