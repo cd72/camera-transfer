@@ -1,14 +1,4 @@
-# camera_transfer
-Script fo processing and organising camera photos
+# Camera Transfer
+Cross platform app fof processing and organising camera photos and videos.
 
-Todo
-* get pytests working
-* get mypy working
-* compare pyproject.tomls
-* check if settings.env does not exist and display message
-* ship a default settings.env with the package
-* add example settings.env to this README.md
-* debug level to dotenv
-* convert app to a class??
-* shift dotenv to home
-* add a summary
+Flexible to allow additional file getters or writers so enable sources and destinations other than a local filesystem.

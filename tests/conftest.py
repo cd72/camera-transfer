@@ -3,12 +3,6 @@ import pytest
 from typing import Callable
 from datetime import datetime
 
-# @pytest.fixture()
-# def get_file_text():
-#     def _(file_path: str):
-#         return (Path(__file__).parent / file_path).read_text()
-
-#     return _
 
 
 @pytest.fixture()

@@ -1,6 +1,8 @@
 import argparse
 import logging
 from pathlib import Path
+import rich
+
 
 from camera_transfer.camera_file_getter import CameraFileGetter
 from camera_transfer.camera_transfer import CameraTransfer
@@ -44,8 +46,6 @@ def parse_args() -> argparse.Namespace:
 
 def load_settings_from_dotenv(dotenv_file: Path) -> Settings:
     s = Settings(_env_file=dotenv_file)
-
-    import rich
 
     rich.print(s.model_dump())
     return s
