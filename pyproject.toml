@@ -1,7 +1,7 @@
 [project]
 name = "camera-transfer"
 version = "0.1.0"
-description = "Add your description here"
+description = "Processes and organises photos from external devices like cameras and phones"
 readme = "README.md"
 authors = [
     { name = "Chris Denney", email = "chris.j.denney@gmail.com" }
@@ -29,4 +29,37 @@ dev = [
     "notebook>=7.2.2",
     "pytest>=8.3.3",
     "pytest-cov>=6.0.0",
+]
+
+[tool.mypy]
+plugins = [
+  "pydantic.mypy"
+]
+# follow_imports = "silent"
+warn_redundant_casts = true
+warn_unused_ignores = true
+disallow_any_generics = true
+check_untyped_defs = true
+no_implicit_reexport = true
+
+# for strict mypy: (this is the tricky one :-))
+disallow_untyped_defs = true
+
+[tool.pydantic-mypy]
+init_forbid_extra = true
+init_typed = true
+warn_required_dynamic_aliases = true
+
+
+[tool.coverage.paths]
+source = ["src", "*/site-packages"]
+
+[tool.coverage.run]
+branch = true
+source = ["cameratransfer"]
+
+[tool.coverage.report]
+show_missing = true
+exclude_also = [
+    "\\.\\.\\."
 ]
