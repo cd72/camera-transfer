@@ -45,6 +45,12 @@ def parse_args() -> argparse.Namespace:
     return parser.parse_args()
 
 def load_settings_from_dotenv(dotenv_file: Path) -> Settings:
+
+    if not dotenv_file.exists():
+       print(f"The settings file {dotenv_file} does not exist.")
+       exit(1)
+
+    print(f"Loading settings from {dotenv_file}")
     s = Settings(_env_file=dotenv_file)
 
     rich.print(s.model_dump())
@@ -79,13 +85,11 @@ def get_camera_transfer_operation(settings: Settings) -> CameraTransfer:
 
 def main() -> None:
     logger = logging.getLogger(__name__)
-    print("Running")
 
     args = parse_args()
 
-    settings_file = Path(__file__).parent / "settings.env"
-    print(f"Loading settings from {settings_file}")
-    settings = load_settings_from_dotenv(settings_file)
+    dotenv_file = Path(__file__).parent / "settings.env"
+    settings = load_settings_from_dotenv(dotenv_file=dotenv_file)
     set_up_logging(settings.log_level)
     # "/mnt/d/projects/camera-transfer/settings.env"
     if args.dry_run:
