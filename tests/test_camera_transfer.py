@@ -2,18 +2,19 @@ import logging
 import os
 from datetime import datetime
 from pathlib import Path
+import platformdirs
 
 import pytest
 
 from camera_transfer import app
-from camera_transfer.dotenv_config import Settings
+from camera_transfer.camera_settings import CameraSettings
 
 logger = logging.getLogger(__name__)
 
 
 @pytest.fixture
-def base_test_settings(tmp_path: Path) -> Settings:
-    return Settings(
+def base_test_settings(tmp_path: Path) -> CameraSettings:
+    return CameraSettings(
         camera_folder=tmp_path,
         main_photos_folder=tmp_path,
         main_videos_folder=tmp_path,
@@ -25,31 +26,31 @@ def base_test_settings(tmp_path: Path) -> Settings:
 
 
 @pytest.fixture
-def single_image_test_settings(base_test_settings: Settings) -> Settings:
+def single_image_test_settings(base_test_settings: CameraSettings) -> CameraSettings:
     base_test_settings.camera_folder = Path(__file__).parent / "DCIM/single_image"
     return base_test_settings
 
 
 @pytest.fixture
-def duplicate_image_test_settings(base_test_settings: Settings) -> Settings:
+def duplicate_image_test_settings(base_test_settings: CameraSettings) -> CameraSettings:
     base_test_settings.camera_folder = Path(__file__).parent / "DCIM/duplicate_image"
     return base_test_settings
 
 
 @pytest.fixture
-def single_video_test_settings(base_test_settings: Settings) -> Settings:
+def single_video_test_settings(base_test_settings: CameraSettings) -> CameraSettings:
     base_test_settings.camera_folder = Path(__file__).parent / "DCIM/single_video"
     return base_test_settings
 
 
 @pytest.fixture
-def duplicate_video_test_settings(base_test_settings: Settings) -> Settings:
+def duplicate_video_test_settings(base_test_settings: CameraSettings) -> CameraSettings:
     base_test_settings.camera_folder = Path(__file__).parent / "DCIM/duplicate_video"
     return base_test_settings
 
 
 @pytest.fixture
-def all_files_test_settings(base_test_settings: Settings, tmp_path: Path) -> Settings:
+def all_files_test_settings(base_test_settings: CameraSettings, tmp_path: Path) -> CameraSettings:
     sqlite_file = tmp_path / "test.db"
     sqlite_file.touch(exist_ok=False)
     base_test_settings.camera_folder = Path(__file__).parent / "DCIM"
@@ -59,7 +60,7 @@ def all_files_test_settings(base_test_settings: Settings, tmp_path: Path) -> Set
 
 
 def test_app_load_dotenv() -> None:
-    settings = app.load_settings_from_dotenv(Path(__file__).parent / "test.env")
+    settings = app.load_settings_from_file(Path(__file__).parent / "test.env")
 
     assert settings.dry_run == False
     assert settings.camera_model_short_names == {"COOLPIX S9700": "S9700"}
@@ -71,11 +72,12 @@ def test_app_load_dotenv() -> None:
     assert settings.video_formats == {".mov", ".MOV", ".mp4", ".MP4"}
     assert settings.log_level == "DEBUG"
 
+def test_new_settings_file(tmp_path: Path) -> None:
+    assert app.load_settings_from_file(tmp_path / "settings.env")
 
-##########################################################################################
 
 
-def test_camera_transfer(single_image_test_settings: Settings) -> None:
+def test_camera_transfer(single_image_test_settings: CameraSettings) -> None:
     camera_transfer = app.get_camera_transfer_operation(single_image_test_settings)
 
     device_file_name = "DSCN6228.JPG"
@@ -104,7 +106,7 @@ def test_camera_transfer(single_image_test_settings: Settings) -> None:
     )
 
 
-def test_unknown_camera(single_image_test_settings: Settings) -> None:
+def test_unknown_camera(single_image_test_settings: CameraSettings) -> None:
     single_image_test_settings.camera_model_short_names = {}
     camera_transfer = app.get_camera_transfer_operation(single_image_test_settings)
 
@@ -112,7 +114,7 @@ def test_unknown_camera(single_image_test_settings: Settings) -> None:
         camera_transfer.run()
 
 
-def test_camera_transfer_duplicate(duplicate_image_test_settings: Settings) -> None:
+def test_camera_transfer_duplicate(duplicate_image_test_settings: CameraSettings) -> None:
     camera_transfer = app.get_camera_transfer_operation(duplicate_image_test_settings)
     camera_transfer.run()
     assert len(list(duplicate_image_test_settings.main_photos_folder.iterdir())) == 1
@@ -127,7 +129,7 @@ def test_camera_transfer_duplicate(duplicate_image_test_settings: Settings) -> N
     assert expected_output_file.stat().st_size == 3560217
 
 
-def test_video_transfer(single_video_test_settings: Settings) -> None:
+def test_video_transfer(single_video_test_settings: CameraSettings) -> None:
     device_file_name = "blank_video.mp4"
     file_last_modified = datetime(2024, 1, 25, 17, 00, 3)
     os.utime(
@@ -155,7 +157,7 @@ def test_video_transfer(single_video_test_settings: Settings) -> None:
     )
 
 
-def test_video_transfer_duplicate(duplicate_video_test_settings: Settings) -> None:
+def test_video_transfer_duplicate(duplicate_video_test_settings: CameraSettings) -> None:
     camera_transfer = app.get_camera_transfer_operation(duplicate_video_test_settings)
     device_file_name = "blank_video.mp4"
 
@@ -177,14 +179,14 @@ def test_video_transfer_duplicate(duplicate_video_test_settings: Settings) -> No
     assert expected_output_file.stat().st_size == 1311047
 
 
-def test_all_files_transfer(all_files_test_settings: Settings) -> None:
+def test_all_files_transfer(all_files_test_settings: CameraSettings) -> None:
     camera_transfer = app.get_camera_transfer_operation(all_files_test_settings)
     camera_transfer.run()
     assert len(list(all_files_test_settings.main_photos_folder.glob("**/*.JPG"))) == 1
     assert len(list(all_files_test_settings.main_videos_folder.glob("**/*.mp4"))) == 1
 
 
-def test_all_files_transfer_dry_run(all_files_test_settings: Settings) -> None:
+def test_all_files_transfer_dry_run(all_files_test_settings: CameraSettings) -> None:
     all_files_test_settings.dry_run = True
     camera_transfer = app.get_camera_transfer_operation(all_files_test_settings)
     camera_transfer.run()

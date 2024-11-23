@@ -3,10 +3,12 @@ import logging
 from pathlib import Path
 import rich
 
+import platformdirs
+
 
 from camera_transfer.camera_file_getter import CameraFileGetter
 from camera_transfer.camera_transfer import CameraTransfer
-from camera_transfer.dotenv_config import Settings
+from camera_transfer.camera_settings import CameraSettings
 from camera_transfer.hash_store import HashStore
 from camera_transfer.os_file_getter import OSFileGetter
 from camera_transfer.os_output_file_writer import OSOutputFileWriter
@@ -44,25 +46,36 @@ def parse_args() -> argparse.Namespace:
     )
     return parser.parse_args()
 
-def load_settings_from_dotenv(dotenv_file: Path) -> Settings:
+def create_settings_file(settings_file: Path) -> None:
+    print(f"Creating settings file {settings_file}")
+    settings_file.write_text(f"""CT_CAMERA_FOLDER=.
+CT_MAIN_PHOTOS_FOLDER={platformdirs.user_pictures_path()}
+CT_MAIN_VIDEOS_FOLDER={platformdirs.user_videos_path()}
+CT_SQLITE_DATABASE={platformdirs.user_data_dir('camera-transfer')}/camera-transfer.db
+CT_CAMERA_MODEL_SHORT_NAMES='{{"COOLPIX S9700": "S9700", "TFY-LX1": "chris-phone"}}'
+CT_IMAGE_FORMATS='[".jpg", ".jpeg", ".JPG", ".JPEG", ".png", ".PNG"]'
+CT_VIDEO_FORMATS='[".mov", ".MOV",  ".mp4", ".MP4"]'
+CT_DRY_RUN=False
+CT_LOG_LEVEL=INFO""")
 
-    if not dotenv_file.exists():
-       print(f"The settings file {dotenv_file} does not exist.")
-       exit(1)
+def load_settings_from_file(settings_file: Path) -> CameraSettings:
+    if not settings_file.exists():
+       print(f"The settings file {settings_file} does not exist.")
+       create_settings_file(settings_file)
 
-    print(f"Loading settings from {dotenv_file}")
-    s = Settings(_env_file=dotenv_file)
+    print(f"Loading settings from {settings_file}")
+    s = CameraSettings(_env_file=settings_file)
 
     rich.print(s.model_dump())
     return s
 
 
-def file_getter(settings: Settings) -> OSFileGetter:
+def file_getter(settings: CameraSettings) -> OSFileGetter:
     all_formats = settings.image_formats | settings.video_formats
     return OSFileGetter(location=settings.camera_folder, file_extensions=all_formats)
 
 
-def camera_file_getter(settings: Settings) -> CameraFileGetter:
+def camera_file_getter(settings: CameraSettings) -> CameraFileGetter:
     return CameraFileGetter(
         file_getter=file_getter(settings),
         camera_model_short_names=settings.camera_model_short_names,
@@ -71,7 +84,7 @@ def camera_file_getter(settings: Settings) -> CameraFileGetter:
     )
 
 
-def get_camera_transfer_operation(settings: Settings) -> CameraTransfer:
+def get_camera_transfer_operation(settings: CameraSettings) -> CameraTransfer:
     return CameraTransfer(
         camera_file_getter=camera_file_getter(settings),
         output_file_writer=OSOutputFileWriter(
@@ -88,10 +101,9 @@ def main() -> None:
 
     args = parse_args()
 
-    dotenv_file = Path(__file__).parent / "settings.env"
-    settings = load_settings_from_dotenv(dotenv_file=dotenv_file)
+    settings_file = Path(__file__).parent / "settings.env"
+    settings = load_settings_from_file(settings_file=settings_file)
     set_up_logging(settings.log_level)
-    # "/mnt/d/projects/camera-transfer/settings.env"
     if args.dry_run:
         logger.info("Dry run mode")
         settings.dry_run = True
