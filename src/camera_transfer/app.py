@@ -95,7 +95,7 @@ def get_camera_transfer_operation(settings: CameraSettings) -> CameraTransfer:
             base_video_location=settings.main_photos_folder,
             dry_run=settings.dry_run,
         ),
-        hash_store=HashStore(filename=settings.sqlite_database),
+        hash_store=HashStore(database_file=settings.sqlite_database),
     )
 
 
