@@ -48,7 +48,9 @@ def parse_args() -> argparse.Namespace:
 
 def create_settings_file(settings_file: Path) -> None:
     print(f"Creating settings file {settings_file}")
-    settings_file.write_text(f"""CT_CAMERA_FOLDER=.
+    settings_file.parent.mkdir(parents=True, exist_ok=True)
+    settings_file.write_text(f"""
+CT_CAMERA_FOLDER=.
 CT_MAIN_PHOTOS_FOLDER={platformdirs.user_pictures_path()}
 CT_MAIN_VIDEOS_FOLDER={platformdirs.user_videos_path()}
 CT_SQLITE_DATABASE={platformdirs.user_data_dir('camera-transfer')}/camera-transfer.db
@@ -56,7 +58,8 @@ CT_CAMERA_MODEL_SHORT_NAMES='{{"COOLPIX S9700": "S9700", "TFY-LX1": "chris-phone
 CT_IMAGE_FORMATS='[".jpg", ".jpeg", ".JPG", ".JPEG", ".png", ".PNG"]'
 CT_VIDEO_FORMATS='[".mov", ".MOV",  ".mp4", ".MP4"]'
 CT_DRY_RUN=False
-CT_LOG_LEVEL=INFO""")
+CT_LOG_LEVEL=INFO
+""")
 
 def load_settings_from_file(settings_file: Path) -> CameraSettings:
     if not settings_file.exists():
@@ -101,7 +104,7 @@ def main() -> None:
 
     args = parse_args()
 
-    settings_file = Path(__file__).parent / "settings.env"
+    settings_file = Path(platformdirs.user_config_dir("camera-transfer")) / "settings.env"
     settings = load_settings_from_file(settings_file=settings_file)
     set_up_logging(settings.log_level)
     if args.dry_run:
