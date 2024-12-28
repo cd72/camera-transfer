@@ -37,7 +37,7 @@ class CameraTransfer:
             return
 
         new_file_name = camera_file.generate_new_file_name()
-        sub_folder = Path(datetime.now().strftime("%Y/%m"))
+        sub_folder = Path(datetime.now().strftime("%Y/%m - %B"))
         logger.debug(new_file_name)
         self.output_file_writer.write_file(
             camera_file.generate_new_file_name(),

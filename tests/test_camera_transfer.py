@@ -119,10 +119,12 @@ def test_camera_transfer_duplicate(duplicate_image_test_settings: CameraSettings
     camera_transfer.run()
     assert len(list(duplicate_image_test_settings.main_photos_folder.iterdir())) == 1
 
+
+    # month part should be like 02 - February
     expected_output_file = (
         Path(duplicate_image_test_settings.main_photos_folder)
         / datetime.now().strftime("%Y")
-        / datetime.now().strftime("%m")
+        / datetime.now().strftime("%m - %B")
         / "2022-07-27T115409_S9700_6228.JPG"
     )
     assert expected_output_file.exists()
