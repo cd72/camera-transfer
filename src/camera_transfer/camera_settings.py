@@ -1,8 +1,6 @@
 from pathlib import Path
-
 from pydantic import DirectoryPath, Field
 from pydantic_settings import BaseSettings, SettingsConfigDict
-
 
 class CameraSettings(BaseSettings, validate_assignment=True):
     camera_folder: DirectoryPath
@@ -16,4 +14,4 @@ class CameraSettings(BaseSettings, validate_assignment=True):
     log_level: str
 
     model_config = SettingsConfigDict(env_prefix="CT_", extra="forbid")
-    
+

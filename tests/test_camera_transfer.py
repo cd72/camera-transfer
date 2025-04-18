@@ -5,6 +5,7 @@ from pathlib import Path
 import platformdirs
 
 import pytest
+from typing import Any
 
 from camera_transfer import app
 from camera_transfer.camera_settings import CameraSettings
@@ -93,7 +94,7 @@ def test_camera_transfer(single_image_test_settings: CameraSettings) -> None:
     expected_output_file = (
         Path(single_image_test_settings.main_photos_folder)
         / datetime.now().strftime("%Y")
-        / datetime.now().strftime("%m")
+        / datetime.now().strftime("%m - %B")
         / "2022-07-27T115409_S9700_6228.JPG"
     )
     assert expected_output_file.exists()
@@ -146,7 +147,7 @@ def test_video_transfer(single_video_test_settings: CameraSettings) -> None:
     expected_output_file = (
         Path(single_video_test_settings.main_videos_folder)
         / datetime.now().strftime("%Y")
-        / datetime.now().strftime("%m")
+        / datetime.now().strftime("%m - %B")
         / "2024-01-25T170003_video.mp4"
     )
     assert expected_output_file.exists()
@@ -174,7 +175,7 @@ def test_video_transfer_duplicate(duplicate_video_test_settings: CameraSettings)
     expected_output_file = (
         Path(duplicate_video_test_settings.main_videos_folder)
         / datetime.now().strftime("%Y")
-        / datetime.now().strftime("%m")
+        / datetime.now().strftime("%m - %B")
         / "2024-01-25T170003_video.mp4"
     )
     assert expected_output_file.exists()
@@ -194,3 +195,22 @@ def test_all_files_transfer_dry_run(all_files_test_settings: CameraSettings) -> 
     camera_transfer.run()
     assert len(list(all_files_test_settings.main_photos_folder.glob("**/*.JPG"))) == 0
     assert len(list(all_files_test_settings.main_videos_folder.glob("**/*.mp4"))) == 0
+
+def test_user_friendly_invalid_camera_folder(tmp_path: Path) -> None:
+    settings_file = tmp_path / "settings.env"
+    settings_file.write_text(
+        "CT_CAMERA_FOLDER=/invalid/folder/path\n"
+        "CT_MAIN_PHOTOS_FOLDER=/tmp\n"
+        "CT_MAIN_VIDEOS_FOLDER=/tmp\n"
+        "CT_SQLITE_DATABASE=\n"
+        "CT_CAMERA_MODEL_SHORT_NAMES='{\"COOLPIX S9700\": \"S9700\"}'\n"
+        "CT_IMAGE_FORMATS='[\".jpg\", \".JPG\"]'\n"
+        "CT_VIDEO_FORMATS='[\".mov\", \".MOV\", \".mp4\", \".MP4\"]'\n"
+        "CT_DRY_RUN=False\n"
+        "CT_LOG_LEVEL=DEBUG\n"
+    )
+    with pytest.raises(ValueError) as excinfo:
+        app.load_settings_from_file(settings_file)
+    assert "The folder /invalid/folder/path does not exist. Please check that the SD card is properly inserted." in str(excinfo.value)
+
+

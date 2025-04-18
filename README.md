@@ -15,3 +15,9 @@ CT_VIDEO_FORMATS='[".mov", ".MOV",  ".mp4", ".MP4"]'
 CT_DRY_RUN=False
 CT_LOG_LEVEL=INFO
 ```
+
+## to do
+* try Commitizen to handle version numbers
+* Implement github actions to build
+* Display a nicer message if the camera drive does not exist
+* Display a summary of file operations at end

@@ -1,6 +1,7 @@
 import argparse
 import logging
 from pathlib import Path
+from pydantic import ValidationError
 import rich
 
 import platformdirs
@@ -67,7 +68,23 @@ def load_settings_from_file(settings_file: Path) -> CameraSettings:
        create_settings_file(settings_file)
 
     print(f"Loading settings from {settings_file}")
-    s = CameraSettings(_env_file=settings_file)
+
+    try:
+        s = CameraSettings(_env_file=settings_file)
+    except ValidationError as e:
+        # Check for camera_folder specific error
+        for err in e.errors():
+            if err["loc"] == ("camera_folder",) and err["type"] == "path_not_directory":
+                print(f"\n[ERROR] The folder {err['input']} does not exist. Please check that the SD card is properly inserted.\n")
+                raise ValueError(f"The folder {err['input']} does not exist. Please check that the SD card is properly inserted.")
+        # For other errors, print the default message and re-raise
+        print("\n[ERROR] Invalid configuration:")
+        print(e)
+        raise
+    except Exception as e:
+        import traceback
+        traceback.print_exc()
+        raise e
 
     rich.print(s.model_dump())
     return s
